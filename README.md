@@ -29,5 +29,5 @@ It is written in Bash and it is a fun way to learn some basic commands and advan
 
 ## Issues 
 - missing tests for commands 
-- the story of each command to make it more fun to user
+- the story for each command to make it more fun to user
 - how to use for each command that will add to the cheat sheet
