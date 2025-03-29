@@ -104,13 +104,12 @@ Example \`touch my_file1 my_file2 my_file3\`"
 
 parts=("$cd_story" "$find_story" "$rm_story" "$mv_story" "$chmod_story" "$touch_story")
 tests=("$cd_test" "$find_test" "$rm_test" "$mv_test" "$chmod_test" "$touch_test")
-i=0
-while [[ i -le $((${#parts[@]} - 1)) ]]; do
+part=0
+while [[ part -le $((${#parts[@]} - 1)) ]]; do
   clear
   e=false
   while [[ "$e" == 'false' ]]; do
-    echo $i
-    show_text "${parts[$i]}"
+    show_text "${parts[$part]}"
     MENUPROMPT="What will you do? "
     OPTIONS=('do' 'secret' 'exit')
     MENU "${MENUPROMPT}" $OPTIONS
@@ -119,8 +118,8 @@ while [[ i -le $((${#parts[@]} - 1)) ]]; do
     'do')
       clear
       read -p "Ok do it write the command you will use: " -r cho
-      command "$cho${tests[$i]}"
-      if $?; then
+      command "$cho${tests[$part]}"
+      if [[ $? -eq 0 ]]; then
         e=true
         break
       fi
@@ -134,4 +133,5 @@ while [[ i -le $((${#parts[@]} - 1)) ]]; do
       ;;
     esac
   done
+  part=$(( part+1 ))
 done
