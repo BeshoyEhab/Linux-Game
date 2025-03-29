@@ -2,8 +2,7 @@
 
 source ./.menu.sh
 
-tmp_dir="$(mktemp -d)/"
-chmod u+r $tmp_dir
+tmp_dir=$(mktemp -d)
 cp -r game $tmp_dir
 cd $tmp_dir
 
@@ -14,7 +13,7 @@ find_story='One stormy night, Blackfin discovered a map leading to the legendary
 find_test=" > .find.txt ; cd $tmp_dir; diff .find.txt .find_sol"
 
 rm_story="As they sailed through treacherous waters, a rival ship, the Siren's Wrath, ambushed them. Cannons roared, and the sea turned red with battle.  Remove the sirens, ASAP! Save the captain!"
-rm_test="; test -f Chala > ./rm.txt ; cd $tmp_dir"
+rm_test="; test -f Chala | tee ./rm.txt ; cd $tmp_dir"
 
 mv_story='Blackfin outsmarted his foes, using the storm to his advantage. The *Crimson Tide* emerged victorious, though scarred and weary.  Take the ship and put near the island'
 mv_test="; test -d Chala | tee ./mv.txt ; cd $tmp_dir"
@@ -27,15 +26,15 @@ With the Emerald Skull in hand, Blackfin set sail again, his legend growing. The
 
 show_text() {
   delay=0.03
-  text="$1"
-  for j in $(seq 0 ${#text}); do
+  text=$1
+  for ((j = 0; j < ${#text}; j++)); do
     echo -n "${text:$j:1}"
     if [ "${text:$j:1}" == "." ]; then
       sleep $(echo "$delay * 15" | bc)
     fi
     sleep $delay
   done
-  echo "\n"
+  echo
 }
 
 cheat() {
@@ -103,44 +102,36 @@ Example \`touch my_file1 my_file2 my_file3\`"
 
 }
 
-main() {
-  parts=("$cd_story" "$find_story" "$rm_story" "$mv_story" "$chmod_story" "$touch_story")
-  tests=("$cd_test" "$find_test" "$rm_test" "$mv_test" "$chmod_test" "$touch_test")
-  echo $((${#parts[@]} - 1))
-  for i in $(seq 0 $((${#parts[@]} - 1))); do
-    echo "$parts[$i]"
+parts=("$cd_story" "$find_story" "$rm_story" "$mv_story" "$chmod_story" "$touch_story")
+tests=("$cd_test" "$find_test" "$rm_test" "$mv_test" "$chmod_test" "$touch_test")
+part=0
+while [[ part -le $((${#parts[@]} - 1)) ]]; do
+  clear
+  e=false
+  while [[ "$e" == 'false' ]]; do
+    show_text "${parts[$part]}"
+    MENUPROMPT="What will you do? "
+    OPTIONS=('do' 'secret' 'exit')
+    MENU "${MENUPROMPT}" $OPTIONS
+    r=${OPTIONS[$?]}
+    case "$r" in
+    'do')
+      clear
+      read -p "Ok do it write the command you will use: " -r cho
+      command "$cho${tests[$part]}"
+      if [[ $? -eq 0 ]]; then
+        e=true
+        break
+      fi
+      ;;
+    'secret')
+      clear
+      cheat
+      ;;
+    'exit')
+      exit 1
+      ;;
+    esac
   done
-  read -r VAR
-  for i in $(seq 0 $((${#parts[@]} - 1))); do
-    clear
-    text="${parts[$i]}"
-    show_text "$text"
-    while true; do
-      MENUPROMPT="$text\nWhat will you do? "
-      OPTIONS=('do' 'secret' 'exit')
-      MENU "${MENUPROMPT}" $OPTIONS
-      r=${OPTIONS[$?]}
-      case "$r" in
-      'do')
-        clear
-        read -p "Ok do it write the command you will use: " -r cho
-        command "$cho${tests[$i]}"
-        if [[ "$?" -eq "0" ]]; then
-          break
-        else
-          read -p "Enter enter to enter. "
-        fi
-        ;;
-      'secret')
-        clear
-        cheat
-        ;;
-      'exit')
-        exit 1
-        ;;
-      esac
-    done
-  done
-}
-
-main
+  part=$(( part+1 ))
+done
