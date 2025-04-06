@@ -2,27 +2,30 @@
 
 source ./.menu.sh
 
-tmp_dir=$(mktemp -d)
-cp -r game $tmp_dir
+## Initialize the game
+tmp_dir=$(mktemp -d -t 'game.XXX')
+cp -r ./game/* $tmp_dir
 cd $tmp_dir
 
+## Commands stories
 cd_story="Captain Flint 'Blackfin' Drake was a fearsome pirate. But he was different, he is an online pirate who searches for online treasures. He was known for his cunning and ruthlessness. His ship, the Crimson_Tide, was a ghostly shadow on the high seas. Which command should he use to enter the folder named 'Crimson_Tide'"
-cd_test="; pwd > .cd.txt ; cd $tmp_dir; diff .cd.txt .cd_sol"
-
 find_story='One stormy night, Blackfin discovered a map leading to the legendary Emerald Skull. Search for the island named "Chala". Which command should he use (search through many files with different island names)'
-find_test=" > .find.txt ; cd $tmp_dir; diff .find.txt .find_sol"
-
-rm_story="As they sailed through treacherous waters, a rival ship, the Siren's Wrath, ambushed them. Cannons roared, and the sea turned red with battle.  Remove the sirens, ASAP! Save the captain!"
-rm_test="; test -f Chala | tee ./rm.txt ; cd $tmp_dir"
-
-mv_story='Blackfin outsmarted his foes, using the storm to his advantage. The *Crimson Tide* emerged victorious, though scarred and weary.  Take the ship and put near the island'
-mv_test="; test -d Chala | tee ./mv.txt ; cd $tmp_dir"
-
+rm_story="As they sailed through treacherous waters, a rival ship, the Siren's Wrath, ambushed them. Cannons roared, and the sea turned red with battle. Remove the sirens, ASAP! Save the captain!"
+mv_story='Blackfin outsmarted his foes, using the storm to his advantage. The *Crimson Tide* emerged victorious, though scarred and weary. Take the ship and put near the Main_Land'
 chmod_story="At the island, traps and riddles guarded the treasure. He kept trying to evade and save the crew but he got trapped in a temple. Give him the permissions to be able to open the gate"
-
 touch_story="Blackfin's wit and blade proved sharper than any curse.
 
 With the Emerald Skull in hand, Blackfin set sail again, his legend growing. The sea was his home, and adventure his only mistress. Put your flag on the island to show the world that could take the treasure"
+
+## Commands tests
+cd_test="; pwd > .cd.txt ; cd $tmp_dir; diff .cd.txt .cd_sol"
+find_test=" > .find.txt ; cd $tmp_dir; diff .find.txt .find_sol"
+rm_test="; test -f Chala | tee ./.rm.txt ; cd $tmp_dir"
+mv_test="; test -d Chala | tee ./.mv.txt ; cd $tmp_dir"
+
+## Commands solutions
+echo "cd $tmp_dir/Crimson_Tide" >.cd_sol
+find . -name Chala >.find_sol
 
 show_text() {
   delay=0.03
@@ -133,5 +136,5 @@ while [[ part -le $((${#parts[@]} - 1)) ]]; do
       ;;
     esac
   done
-  part=$(( part+1 ))
+  part=$((part + 1))
 done
