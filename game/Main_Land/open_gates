@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+echo "Opening gates..."
+echo "Gates is open you can pass now"
