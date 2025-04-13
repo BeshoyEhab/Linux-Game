@@ -24,7 +24,7 @@ rm_test="; test -f Chala | tee ./.rm.txt ; cd $tmp_dir"
 mv_test="; test -d Chala | tee ./.mv.txt ; cd $tmp_dir"
 
 ## Commands solutions
-echo "cd $tmp_dir/Crimson_Tide" >.cd_sol
+echo "$tmp_dir/Crimson_Tide" >.cd_sol
 find . -name Chala >.find_sol
 
 show_text() {
