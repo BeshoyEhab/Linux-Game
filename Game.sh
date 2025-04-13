@@ -8,7 +8,7 @@ cp -r ./game/* $tmp_dir
 cd $tmp_dir
 
 ## Commands stories
-cd_story="Captain Flint 'Blackfin' Drake was a fearsome pirate. But he was different, he is an online pirate who searches for online treasures. He was known for his cunning and ruthlessness. His ship, the Crimson_Tide, was a ghostly shadow on the high seas. Which command should he use to enter the folder named 'Crimson_Tide'"
+cd_story="Captain Flint 'Blackfin Drake' was a fearsome pirate. But he was different, he is an online pirate who searches for online treasures. He was known for his cunning and ruthlessness. His ship, the Crimson_Tide, was a ghostly shadow on the high seas. Which command should he use to enter the folder named 'Crimson_Tide'"
 find_story='One stormy night, Blackfin discovered a map leading to the legendary Emerald Skull. Search for the island named "Chala". Which command should he use (search through many files with different island names)'
 rm_story="As they sailed through treacherous waters, a rival ship, the Siren's Wrath, ambushed them. Cannons roared, and the sea turned red with battle. Remove the sirens, ASAP! Save the captain!"
 mv_story='Blackfin outsmarted his foes, using the storm to his advantage. The *Crimson Tide* emerged victorious, though scarred and weary. Take the ship and put near the Main_Land'
