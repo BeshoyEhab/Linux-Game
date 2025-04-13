@@ -2,223 +2,231 @@
 
 source ./.menu.sh
 
-# Game Constants
-export GAME_DIR=$(mktemp -d -t 'game.XXX')
-LOG_FILE="$GAME_DIR/pirate_log.txt"
-SAVE_FILE="$GAME_DIR/treasure_map.save"
+## Initialize the game
+tmp_dir=$(mktemp -d -t 'game.XXX')
+export GAME_DIR=$tmp_dir
+cp -r ./game/* $tmp_dir
+cd $tmp_dir
 
-# Initialize game world
-initialize_game() {
-  cp -r ./game/* "$GAME_DIR"
-  cd "$GAME_DIR" || exit 1
-  touch "$LOG_FILE"
-  echo "0" >"$SAVE_FILE"
-}
+## Commands stories
+cd_story="Captain Flint 'Blackfin Drake' was a fearsome pirate. But he was different, he is an online pirate who searches for online treasures. He was known for his cunning and ruthlessness. His ship, the Crimson_Tide, was a ghostly shadow on the high seas. Which command should he use to enter the folder named 'Crimson_Tide'"
+find_story='One stormy night, Blackfin discovered a map leading to the legendary Emerald Skull. Search for the island named "Chala". Which command should he use (search through many files with different island names)'
+rm_story="As they sailed through treacherous waters, a rival ship, the Siren's Wrath, ambushed them. Cannons roared, and the sea turned red with battle. Remove the sirens, ASAP! Save the captain!"
+mv_story='Blackfin outsmarted his foes, using the storm to his advantage. The *Crimson Tide* emerged victorious, though scarred and weary. Take the ship and put near the Main_Land'
+chmod_story="At the island, traps and riddles guarded the treasure. He kept trying to evade and save the crew but he got trapped in a temple. Give him the permissions to be able to open the gate"
 
-# Command Validation
-validate_command() {
-  local cmd=$1
-  declare -A allowed_commands=(
-    [cd]="Navigate directories"
-    [find]="Search for files"
-    [rm]="Remove files"
-    [mv]="Move/rename files"
-    [chmod]="Change permissions"
-    [touch]="Create files"
-    [echo]="Print messages"
-    [cat]="View files"
-    [grep]="Search text"
-    [help]="Show help"
-    [quit]="Exit game"
-  )
+## Need to be added
+touch_story="Blackfin's wit and blade proved sharper than any curse. With the Emerald Skull in hand, Blackfin set sail again, his legend growing. The sea was his home, and adventure his only mistress. Put your flag on the island to show the world that could take the treasure"
+tar_story="After years of sailing through the seas of the internet, Blackfin had collected countless digital treasures. But he needed a way to store them all in one place. Which command should he use to archive the treasure in a digital chest to protect it from other pirates?"
+zip_story="The files were too many, and carrying them slowed down the digital ship. Blackfin needed a way to make them smaller and more efficient. Which command should he use to compress the treasure to make it lighter and easier to transport?"
+chown_story="While dividing the loot, Blackfin decided to grant some treasures to his loyal crew. But he needed to change the owner of certain digital files. Which command should he use to give the crew ownership of some of the treasures?"
+su_story="On a secret mission, Blackfin needed to infiltrate an enemy database, but he couldn’t enter under his usual identity. Which command should he use to switch the user and sneak in unnoticed?"
+sudo_story="Blackfin found a locked digital gate that required special permission to open. Which command should he use to grant himself the captain’s authority and unlock the digital door?"
+curl_story="While exploring the map of the internet, Blackfin needed to download important documents from remote servers. Which command should he use to fetch the files from the depths of the internet?"
+grep_story="The map was filled with scattered information, but Blackfin needed to find only the treasure coordinates. Which command should he use to search for the required text inside the available files? (I think we need to specify the coodinates or something)"
+pipeline_story=""
+mkdir_story="Upon reaching a new digital island, Blackfin needed to create a new hideout for his treasures. Which command should he use to create a new directory for the digital loot?"
+echo_story="Blackfin wanted to leave a warning message for any pirate who dared to steal his treasure. Which command should he use to print a threat message for enemies?"
+variables_story="To manage his vast treasures, Blackfin needed a system to store important information. Which command should he use to store data in a variable to use it easily later?"
+pwd_story="After wandering through many digital directories, Blackfin lost track of his location. Which command should he use to find out his current position in the digital sea?"
+diff_story="Blackfin had two versions of the treasure map but wasn’t sure what was different between them. Which command should he use to find the difference between the two versions to know which one is updated?"
+git_story="Blackfin knew that his legend would only live on if he shared his adventures with the world. So, he created a digital repository where he could document and update all his journeys. Which command should he use to save the history of his adventures and share them with his crew?"
 
-  # Split into pipeline components
-  IFS='|' read -ra pipe_commands <<<"$cmd"
+## Commands tests
+cd_test="; pwd > $tmp_dir/.cd.txt ; cd $tmp_dir; diff .cd.txt .cd_sol"
+find_test=" > $tmp_dir/.find.txt ; cd $tmp_dir; diff .find.txt .find_sol"
+rm_test="; test -f Chala | tee $tmp_dir/.rm.txt ; cd $tmp_dir"
+mv_test="; test -d Chala | tee $tmp_dir/.mv.txt ; cd $tmp_dir"
 
-  for pipe_part in "${pipe_commands[@]}"; do
-    # Remove redirections and extract base command
-    clean_cmd=$(echo "$pipe_part" | sed -e 's/>.*//' -e 's/<.*//')
-    base_cmd=$(echo "$clean_cmd" | awk '{print $1}')
+## Commands solutions
+echo "$tmp_dir/Crimson_Tide" >$tmp_dir/.cd_sol
+find . -name Chala >$tmp_dir/.find_sol
 
-    if [[ -z "${allowed_commands[$base_cmd]}" ]]; then
-      show_text "Avast! '${base_cmd}' be forbidden in '${pipe_part//[^[:alnum:][:space:]]/}'!"
-      return 1
-    fi
-  done
-
-  return 0
-}
-
-# Story Presentation
 show_text() {
-  text=$1
   delay=0.03
-  echo -n "    "
+  text=$1
   for ((j = 0; j < ${#text}; j++)); do
     echo -n "${text:$j:1}"
-    case "${text:$j:1}" in
-    [.!?])
-      sleep 0.5
-      ;;
-    *)
-      sleep $delay
-      ;;
-    esac
+    if [ "${text:$j:1}" == "." ]; then
+      sleep $(echo "$delay * 15" | bc)
+    fi
+    sleep $delay
   done
   echo
 }
 
-# Enhanced Command Execution
-run_silent() {
-  command=$1
-  test_command=$2
-
-  # Log command without showing
-  echo "[$(date)] Attempted: $command" >>"$LOG_FILE"
-
-  # Execute with timeout and capture output
-  output=$(timeout 5s bash -c "$command $test_command 2>&1" 2>&1)
-  exit_code=$?
-
-  # Return results through global variables
-  LAST_OUTPUT="$output"
-  LAST_EXIT=$exit_code
-}
-
-# Progress Tracking
-update_progress() {
-  current=$((part + 1))
-  echo "$current" >"$SAVE_FILE"
-}
-
-# Victory Condition Check
-check_victory() {
-  if [ $part -ge $((${#parts[@]} - 1)) ]; then
-    show_text "The seas fall silent as Blackfin raises the Emerald Skull! You've mastered the pirate commands!"
-    show_text "Final treasure map saved in: $GAME_DIR"
-    exit 0
-  fi
-}
-
-# Danger Checks
-check_dangers() {
-  if [[ "$LAST_OUTPUT" == *"Permission denied"* ]]; then
-    show_text "A ghostly voice whispers: 'You lack the authority to pass!'"
-  elif [[ "$LAST_OUTPUT" == *"No such file"* ]]; then
-    show_text "The deck creaks: 'That island doesn't exist in these waters!'"
-  elif [[ "$LAST_OUTPUT" == *"command not found"* ]]; then
-    show_text "First Mate shouts: 'We don't have that weapon in our arsenal!'"
-  fi
-}
-
-# Main Game Loop
-pirate_quest() {
-  part=$(cat "$SAVE_FILE")
-  while :; do
-    clear
-    story="${parts[$part]}"
-    test_command="${tests[$part]}"
-    solution_file="${solutions[$part]}"
-
-    show_text "$story"
-
-    read -p $'\n    Enter your command (or type "help"): ' -r command
-
-    case "$command" in
-    help)
-      cheat
-      continue
-      ;;
-    quit)
-      show_text "Abandoning the quest? The Emerald Skull remains hidden..."
-      exit 0
-      ;;
-    *)
-      if ! validate_command "$command"; then
-        read -p $'\n    Press Enter to continue...'
-        continue
+run() {
+  text=$1
+  # Split commands by semicolon, trimming whitespace and ignoring empty
+  IFS=';' read -ra coms <<<"$text"
+  for com in "${coms[@]}"; do
+    com_trimmed=$(echo "$com" | xargs)  # Trim whitespace
+    [[ -z "$com_trimmed" ]] && continue # Skip empty commands
+    if [[ "$com_trimmed" == *"diff"* ]]; then
+      eval "$com_trimmed" 2>&1
+      diff_exit_code=$?
+      if [ $diff_exit_code -ne 0 ]; then
+        echo -e "\033[1;31mTest failed! Differences found.\033[0m"
+      else
+        echo -e "\033[1;32mTest passed! No differences.\033[0m"
+        # we will add git checkout here to enter the next level
       fi
-      run_silent "$command" "$test_command"
-      ;;
-    esac
-
-    clear
-    check_dangers
-
-    if [ $LAST_EXIT -eq 0 ]; then
-      show_text "The crew cheers! Your command worked!"
-      part=$((part + 1))
-      update_progress
-      check_victory
     else
-      show_text "The sea grows restless... Something went wrong!"
-      show_text "Check your bearings and try again (use 'help' if needed)"
+      eval "$com_trimmed" 2>&1
     fi
-
-    read -p $'\n    Press Enter to continue your voyage...'
   done
+  read -p "Press Enter to continue..."
 }
 
 cheat() {
-  show_text "First Mate: 'Aye Captain! Here be our pirate tools:'"
+  clear
+  how_cd="How wonderful the way you go from place to another and faces the wind and the sea,
+cd is like that you can use it to change your current directory
+\`cd [directory]\`
+Example \`cd ./Downloads\`"
 
-  declare -A command_help=(
-    [cd]="<directory> : Navigate between islands"
-    [find]="<path> -name <pattern> : Search for hidden treasures"
-    [rm]="<file> : Sink enemy ships"
-    [mv]="<source> <dest> : Move treasure or rename maps"
-    [chmod]="+x <file> : Make scripts executable"
-    [touch]="<file> : Claim new islands"
-    [tar]="-cf <archive> <files> : Bundle treasures"
-    [gzip]="<file> : Compress maps"
-    [curl]="-O <url> : Plunder web treasures"
-    [grep]="<pattern> <file> : Find secret messages"
-    [help]=": Show this scroll"
-    [quit]=": Abandon quest"
-  )
+  how_find="Hey you give me the binoculars to search for the treasure,
+find the way you will search about treasure [file] is your disk and have a lot of options (you can find them in \`man find\`)
+\`find [place to search in] [option]\`
+Example \`find . -name my_file\`"
 
-  echo -e "\n\e[33mPirate Command Scroll:\e[0m"
-  for cmd in "${!command_help[@]}"; do
-    echo -e "  🏴‍☠️ \e[1;32m${cmd}\e[0m ${command_help[$cmd]}"
-  done
-  echo -e "\n\e[36mPirate Command Examples:\e[0m"
-  echo -e "  🗺️  \e[1;32mecho 'message' > file.txt\e[0m : Leave a marker"
-  echo -e "  🔍 \e[1;32mcat log.txt | grep treasure\e[0m : Search logs"
-  echo -e "  ⚓ \e[1;32mmv old_map.txt new_map.txt\e[0m : Rename scroll"
+  how_rm="Ready, Set, Fire! Let's see how you can destroy the pirates
+rm is the Cannons used to remove files and directories 
+\`rm [option] (file|directory)\`
+Example \`rm ./my_file\`"
 
-  read -p $'\n    Press Enter to return to the quest...'
+  how_mv="Herry we must move all this treasure to the ship before the storm comes
+mv is used to move file or directory from place to another and also to rename files [Stole it 🙂]
+\`mv (file|directory) (place)\`
+\`mv (old_file_name) (new_file_name)\`
+Example \`mv my_file Downloads/\`
+        \`mv my_file MyFile\`"
+
+  how_chmod="Hey, I only want you to fire the cannons and see the treasure not to take it
+chmod is used to changeing file or directory permissions [read execute write] (find more in \`man chmod\`)
+\`chmod (permissions) (file)\`
+Example \`chmod 755 my_file\`"
+
+  how_touch="What to do with those thieves. Oh, I know, I'll make fake cave so they can't find the treasure
+touch is command used for creating new files
+\`touch (file_name[s])\`
+Example \`touch my_file1 my_file2 my_file3\`"
+
+  how_tar="Ahoy! To keep all yer treasures safe and sound in one chest, use the tar command. It bundles files into a single archive.
+\`tar [options] [archive_name] [files_or_directories]\`
+Example \`tar -cvf treasure_chest.tar ./treasures\`"
+
+  how_zip="Shiver me timbers! If yer files be too heavy, use zip to make 'em lighter and easier to carry.
+\`zip [options] [archive_name] [files_or_directories]\`
+Example \`zip -r compressed_treasure.zip ./treasures\`"
+
+  how_chown="Arrr! When ye need to grant yer loyal crew ownership of some treasures, use chown.
+\`chown [new_owner] [file_or_directory]\`
+Example \`chown crewmate treasure_map.txt\`"
+
+  how_su="Blimey! Need to sneak into enemy territory? Use su to switch users and move unseen.
+\`su [username]\`
+Example \`su enemy_pirate\`"
+
+  how_sudo="Yo ho ho! When ye need the captain’s authority to unlock forbidden gates, use sudo.
+\`sudo [command]\`
+Example \`sudo open_secret_gate\`"
+
+  how_curl="Avast! Fetchin’ files from distant servers? Use curl to download treasures from the depths of the internet.
+\`curl [options] [URL]\`
+Example \`curl -O https://piratebay.com/treasure_map.txt\`"
+
+  how_grep="Land ho! Need to find specific coordinates in a sea of text? Use grep to search files for hidden clues.
+\`grep [options] [pattern] [file]\`
+Example \`grep 'Emerald Skull' maps/*.txt\`"
+
+  how_mkdir="Ahoy, matey! Need a new hideout for yer loot? Use mkdir to create a fresh directory.
+\`mkdir [directory_name]\`
+Example \`mkdir ./hidden_treasure\`"
+
+  how_echo="Dead men tell no tales, but echo lets ye leave messages for foolish pirates who dare cross ye.
+\`echo [message]\`
+Example \`echo 'Trespassers will walk the plank!' > warning.txt\`"
+
+  how_variables="By Davy Jones' locker! Store important info in variables to use later in yer scripts.
+\`variable_name=value\`
+Example \`treasure_location='/maps/emerald_skull'\`"
+
+  how_pwd="Lost in the digital seas? Use pwd to find out where ye be.
+\`pwd\`
+Example \`pwd\` (outputs: /home/blackfin/Crimson_Tide)"
+
+  how_diff="Two maps but unsure which one’s updated? Use diff to spot the differences.
+\`diff [file1] [file2]\`
+Example \`diff map_v1.txt map_v2.txt\`"
+
+  how_git="To preserve yer legend, use git to document and share yer adventures with the crew.
+\`git [command] [options]\`
+Example \`git commit -m 'Added Emerald Skull coordinates'\`"
+
+  MENUPROMPT="Oh I see you stuck now, let me help you with that"
+  OPTIONS=('cd' 'find' 'rm' 'mv' 'chmod' 'touch' 'exit')
+  MENU "${MENUPROMPT}" $OPTIONS
+
+  RESULT=${OPTIONS[$?]}
+  case $RESULT in
+  'cd')
+    show_text "$how_cd"
+    ;;
+  'find')
+    show_text "$how_find"
+    ;;
+  'rm')
+    show_text "$how_rm"
+    ;;
+  'mv')
+    show_text "$how_mv"
+    ;;
+  'chmod')
+    show_text "$how_chmod"
+    ;;
+  'touch')
+    show_text "$how_touch"
+    ;;
+  'exit')
+    break
+    ;;
+  esac
+
 }
 
-# Initialize game world
-initialize_game
-
-# Game Data
-parts=(
-  "Captain Flint 'Blackfin Drake' stares at the Crimson_Tide directory. 'To board my ship, I need the right command...'"
-  "A storm reveals coordinates! 'Find the island named Chala in these files!'"
-  "Rival pirates approach! 'Remove the Siren's Wrath before they attack!'"
-  "After battle, 'Move the damaged sails to the repair bay!'"
-  "Ancient temple blocks the path! 'Change permissions to open the gates!'"
-  "Victory in sight! 'Create a flag file to claim the treasure!'"
-)
-
-tests=(
-  "; pwd > .cd.txt ; diff .cd.txt .cd_sol"
-  " > .find.txt ; diff .find.txt .find_sol"
-  "; test -f Chala | tee .rm.txt"
-  "; test -d Chala | tee .mv.txt"
-  ""
-  ""
-)
-
-solutions=(
-  ".cd_sol"
-  ".find_sol"
-  ".rm_sol"
-  ".mv_sol"
-  ""
-  ""
-)
-
-# Start the quest
-pirate_quest
+parts=("$cd_story" "$find_story" "$rm_story" "$mv_story" "$chmod_story" "$touch_story")
+tests=("$cd_test" "$find_test" "$rm_test" "$mv_test" "$chmod_test" "$touch_test")
+part=0
+while [[ part -le $((${#parts[@]} - 1)) ]]; do
+  clear
+  e=false
+  while [[ "$e" == 'false' ]]; do
+    now_part=${parts[$part]}
+    show_text "$now_part"
+    MENUPROMPT="What will you do? "
+    OPTIONS=('do' 'secret' 'exit')
+    MENU "$now_part\n\n${MENUPROMPT}" $OPTIONS
+    r=${OPTIONS[$?]}
+    case "$r" in
+    'do')
+      clear
+      echo -e "$now_part\n\n"
+      read -p "Ok do it write the command you will use: " -r cho
+      run "$cho${tests[$part]}"
+      if [[ $? -eq 0 ]]; then
+        e=true
+        break
+      fi
+      ;;
+    'secret')
+      clear
+      cheat
+      ;;
+    'exit')
+      exit 1
+      ;;
+    esac
+  done
+  part=$((part + 1))
+done
