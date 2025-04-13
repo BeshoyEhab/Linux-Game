@@ -15,6 +15,40 @@ initialize_game() {
   echo "0" >"$SAVE_FILE"
 }
 
+# Command Validation
+validate_command() {
+  local cmd=$1
+  declare -A allowed_commands=(
+    [cd]="Navigate directories"
+    [find]="Search for files"
+    [rm]="Remove files"
+    [mv]="Move/rename files"
+    [chmod]="Change permissions"
+    [touch]="Create files"
+    [echo]="Print messages"
+    [cat]="View files"
+    [grep]="Search text"
+    [help]="Show help"
+    [quit]="Exit game"
+  )
+
+  # Split into pipeline components
+  IFS='|' read -ra pipe_commands <<<"$cmd"
+
+  for pipe_part in "${pipe_commands[@]}"; do
+    # Remove redirections and extract base command
+    clean_cmd=$(echo "$pipe_part" | sed -e 's/>.*//' -e 's/<.*//')
+    base_cmd=$(echo "$clean_cmd" | awk '{print $1}')
+
+    if [[ -z "${allowed_commands[$base_cmd]}" ]]; then
+      show_text "Avast! '${base_cmd}' be forbidden in '${pipe_part//[^[:alnum:][:space:]]/}'!"
+      return 1
+    fi
+  done
+
+  return 0
+}
+
 # Story Presentation
 show_text() {
   text=$1
@@ -100,6 +134,10 @@ pirate_quest() {
       exit 0
       ;;
     *)
+      if ! validate_command "$command"; then
+        read -p $'\n    Press Enter to continue...'
+        continue
+      fi
       run_silent "$command" "$test_command"
       ;;
     esac
@@ -119,6 +157,36 @@ pirate_quest() {
 
     read -p $'\n    Press Enter to continue your voyage...'
   done
+}
+
+cheat() {
+  show_text "First Mate: 'Aye Captain! Here be our pirate tools:'"
+
+  declare -A command_help=(
+    [cd]="<directory> : Navigate between islands"
+    [find]="<path> -name <pattern> : Search for hidden treasures"
+    [rm]="<file> : Sink enemy ships"
+    [mv]="<source> <dest> : Move treasure or rename maps"
+    [chmod]="+x <file> : Make scripts executable"
+    [touch]="<file> : Claim new islands"
+    [tar]="-cf <archive> <files> : Bundle treasures"
+    [gzip]="<file> : Compress maps"
+    [curl]="-O <url> : Plunder web treasures"
+    [grep]="<pattern> <file> : Find secret messages"
+    [help]=": Show this scroll"
+    [quit]=": Abandon quest"
+  )
+
+  echo -e "\n\e[33mPirate Command Scroll:\e[0m"
+  for cmd in "${!command_help[@]}"; do
+    echo -e "  🏴‍☠️ \e[1;32m${cmd}\e[0m ${command_help[$cmd]}"
+  done
+  echo -e "\n\e[36mPirate Command Examples:\e[0m"
+  echo -e "  🗺️  \e[1;32mecho 'message' > file.txt\e[0m : Leave a marker"
+  echo -e "  🔍 \e[1;32mcat log.txt | grep treasure\e[0m : Search logs"
+  echo -e "  ⚓ \e[1;32mmv old_map.txt new_map.txt\e[0m : Rename scroll"
+
+  read -p $'\n    Press Enter to return to the quest...'
 }
 
 # Initialize game world
@@ -151,33 +219,6 @@ solutions=(
   ""
   ""
 )
-
-# Help System
-cheat() {
-  show_text "First Mate: 'Aye Captain! Here be the commands we know:'"
-
-  command_help=(
-    "cd <directory> : Navigate to another ship/directory"
-    "find <path> -name <pattern> : Search for treasure locations"
-    "rm <file> : Remove enemy ships/files"
-    "mv <source> <dest> : Move treasures or rename"
-    "chmod +x <file> : Make scripts executable"
-    "touch <file> : Create new marker files"
-    "tar/gzip : Bundle treasures for storage"
-    "curl : Fetch treasures from web islands"
-    "grep <pattern> <file> : Find text in documents"
-    "help : Show this message"
-    "quit : Abandon the quest"
-  )
-
-  echo -e "\n\e[33mAvailable Commands:\e[0m"
-  for cmd in "${command_help[@]}"; do
-    echo -e "  🏴‍☠️ $cmd"
-  done
-
-  echo -e "\n\e[36mThe crew whispers: 'Try these in combination like 'cd Crimson_Tide && ls'!\e[0m"
-  read -p $'\n    Press Enter to return to the quest...'
-}
 
 # Start the quest
 pirate_quest
