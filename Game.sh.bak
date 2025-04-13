@@ -112,6 +112,58 @@ touch is command used for creating new files
 \`touch (file_name[s])\`
 Example \`touch my_file1 my_file2 my_file3\`"
 
+  how_tar="Ahoy! To keep all yer treasures safe and sound in one chest, use the tar command. It bundles files into a single archive.
+\`tar [options] [archive_name] [files_or_directories]\`
+Example \`tar -cvf treasure_chest.tar ./treasures\`"
+
+  how_zip="Shiver me timbers! If yer files be too heavy, use zip to make 'em lighter and easier to carry.
+\`zip [options] [archive_name] [files_or_directories]\`
+Example \`zip -r compressed_treasure.zip ./treasures\`"
+
+  how_chown="Arrr! When ye need to grant yer loyal crew ownership of some treasures, use chown.
+\`chown [new_owner] [file_or_directory]\`
+Example \`chown crewmate treasure_map.txt\`"
+
+  how_su="Blimey! Need to sneak into enemy territory? Use su to switch users and move unseen.
+\`su [username]\`
+Example \`su enemy_pirate\`"
+
+  how_sudo="Yo ho ho! When ye need the captain’s authority to unlock forbidden gates, use sudo.
+\`sudo [command]\`
+Example \`sudo open_secret_gate\`"
+
+  how_curl="Avast! Fetchin’ files from distant servers? Use curl to download treasures from the depths of the internet.
+\`curl [options] [URL]\`
+Example \`curl -O https://piratebay.com/treasure_map.txt\`"
+
+  how_grep="Land ho! Need to find specific coordinates in a sea of text? Use grep to search files for hidden clues.
+\`grep [options] [pattern] [file]\`
+Example \`grep 'Emerald Skull' maps/*.txt\`"
+
+  how_mkdir="Ahoy, matey! Need a new hideout for yer loot? Use mkdir to create a fresh directory.
+\`mkdir [directory_name]\`
+Example \`mkdir ./hidden_treasure\`"
+
+  how_echo="Dead men tell no tales, but echo lets ye leave messages for foolish pirates who dare cross ye.
+\`echo [message]\`
+Example \`echo 'Trespassers will walk the plank!' > warning.txt\`"
+
+  how_variables="By Davy Jones' locker! Store important info in variables to use later in yer scripts.
+\`variable_name=value\`
+Example \`treasure_location='/maps/emerald_skull'\`"
+
+  how_pwd="Lost in the digital seas? Use pwd to find out where ye be.
+\`pwd\`
+Example \`pwd\` (outputs: /home/blackfin/Crimson_Tide)"
+
+  how_diff="Two maps but unsure which one’s updated? Use diff to spot the differences.
+\`diff [file1] [file2]\`
+Example \`diff map_v1.txt map_v2.txt\`"
+
+  how_git="To preserve yer legend, use git to document and share yer adventures with the crew.
+\`git [command] [options]\`
+Example \`git commit -m 'Added Emerald Skull coordinates'\`"
+
   MENUPROMPT="Oh I see you stuck now, let me help you with that"
   OPTIONS=('cd' 'find' 'rm' 'mv' 'chmod' 'touch' 'exit')
   MENU "${MENUPROMPT}" $OPTIONS
