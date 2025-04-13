@@ -4,6 +4,7 @@ source ./.menu.sh
 
 ## Initialize the game
 tmp_dir=$(mktemp -d -t 'game.XXX')
+export GAME_DIR=$tmp_dir
 cp -r ./game/* $tmp_dir
 cd $tmp_dir
 
@@ -14,32 +15,32 @@ rm_story="As they sailed through treacherous waters, a rival ship, the Siren's W
 mv_story='Blackfin outsmarted his foes, using the storm to his advantage. The *Crimson Tide* emerged victorious, though scarred and weary. Take the ship and put near the Main_Land'
 chmod_story="At the island, traps and riddles guarded the treasure. He kept trying to evade and save the crew but he got trapped in a temple. Give him the permissions to be able to open the gate"
 
-  ## Need to be added
-  touch_story="Blackfin's wit and blade proved sharper than any curse. With the Emerald Skull in hand, Blackfin set sail again, his legend growing. The sea was his home, and adventure his only mistress. Put your flag on the island to show the world that could take the treasure"
-  tar_story="After years of sailing through the seas of the internet, Blackfin had collected countless digital treasures. But he needed a way to store them all in one place. Which command should he use to archive the treasure in a digital chest to protect it from other pirates?"
-  zip_story="The files were too many, and carrying them slowed down the digital ship. Blackfin needed a way to make them smaller and more efficient. Which command should he use to compress the treasure to make it lighter and easier to transport?"
-  chown_story="While dividing the loot, Blackfin decided to grant some treasures to his loyal crew. But he needed to change the owner of certain digital files. Which command should he use to give the crew ownership of some of the treasures?"
-  su_story="On a secret mission, Blackfin needed to infiltrate an enemy database, but he couldn’t enter under his usual identity. Which command should he use to switch the user and sneak in unnoticed?"
-  sudo_story="Blackfin found a locked digital gate that required special permission to open. Which command should he use to grant himself the captain’s authority and unlock the digital door?"
-  curl_story="While exploring the map of the internet, Blackfin needed to download important documents from remote servers. Which command should he use to fetch the files from the depths of the internet?"
-  grep_story="The map was filled with scattered information, but Blackfin needed to find only the treasure coordinates. Which command should he use to search for the required text inside the available files? (I think we need to specify the coodinates or something)"
-  pipeline_story=""
-  mkdir_story="Upon reaching a new digital island, Blackfin needed to create a new hideout for his treasures. Which command should he use to create a new directory for the digital loot?"
-  echo_story="Blackfin wanted to leave a warning message for any pirate who dared to steal his treasure. Which command should he use to print a threat message for enemies?"
-  variables_story="To manage his vast treasures, Blackfin needed a system to store important information. Which command should he use to store data in a variable to use it easily later?"
-  pwd_story="After wandering through many digital directories, Blackfin lost track of his location. Which command should he use to find out his current position in the digital sea?"
-  diff_story="Blackfin had two versions of the treasure map but wasn’t sure what was different between them. Which command should he use to find the difference between the two versions to know which one is updated?"
-  git_story="Blackfin knew that his legend would only live on if he shared his adventures with the world. So, he created a digital repository where he could document and update all his journeys. Which command should he use to save the history of his adventures and share them with his crew?"
-  
+## Need to be added
+touch_story="Blackfin's wit and blade proved sharper than any curse. With the Emerald Skull in hand, Blackfin set sail again, his legend growing. The sea was his home, and adventure his only mistress. Put your flag on the island to show the world that could take the treasure"
+tar_story="After years of sailing through the seas of the internet, Blackfin had collected countless digital treasures. But he needed a way to store them all in one place. Which command should he use to archive the treasure in a digital chest to protect it from other pirates?"
+zip_story="The files were too many, and carrying them slowed down the digital ship. Blackfin needed a way to make them smaller and more efficient. Which command should he use to compress the treasure to make it lighter and easier to transport?"
+chown_story="While dividing the loot, Blackfin decided to grant some treasures to his loyal crew. But he needed to change the owner of certain digital files. Which command should he use to give the crew ownership of some of the treasures?"
+su_story="On a secret mission, Blackfin needed to infiltrate an enemy database, but he couldn’t enter under his usual identity. Which command should he use to switch the user and sneak in unnoticed?"
+sudo_story="Blackfin found a locked digital gate that required special permission to open. Which command should he use to grant himself the captain’s authority and unlock the digital door?"
+curl_story="While exploring the map of the internet, Blackfin needed to download important documents from remote servers. Which command should he use to fetch the files from the depths of the internet?"
+grep_story="The map was filled with scattered information, but Blackfin needed to find only the treasure coordinates. Which command should he use to search for the required text inside the available files? (I think we need to specify the coodinates or something)"
+pipeline_story=""
+mkdir_story="Upon reaching a new digital island, Blackfin needed to create a new hideout for his treasures. Which command should he use to create a new directory for the digital loot?"
+echo_story="Blackfin wanted to leave a warning message for any pirate who dared to steal his treasure. Which command should he use to print a threat message for enemies?"
+variables_story="To manage his vast treasures, Blackfin needed a system to store important information. Which command should he use to store data in a variable to use it easily later?"
+pwd_story="After wandering through many digital directories, Blackfin lost track of his location. Which command should he use to find out his current position in the digital sea?"
+diff_story="Blackfin had two versions of the treasure map but wasn’t sure what was different between them. Which command should he use to find the difference between the two versions to know which one is updated?"
+git_story="Blackfin knew that his legend would only live on if he shared his adventures with the world. So, he created a digital repository where he could document and update all his journeys. Which command should he use to save the history of his adventures and share them with his crew?"
+
 ## Commands tests
-cd_test="; pwd > ../.cd.txt ; cd $tmp_dir; diff .cd.txt .cd_sol"
-find_test=" > .find.txt ; cd $tmp_dir; diff .find.txt .find_sol"
-rm_test="; test -f Chala | tee ./.rm.txt ; cd $tmp_dir"
-mv_test="; test -d Chala | tee ./.mv.txt ; cd $tmp_dir"
+cd_test="; pwd > $tmp_dir/.cd.txt ; cd $tmp_dir; diff .cd.txt .cd_sol"
+find_test=" > $tmp_dir/.find.txt ; cd $tmp_dir; diff .find.txt .find_sol"
+rm_test="; test -f Chala | tee $tmp_dir/.rm.txt ; cd $tmp_dir"
+mv_test="; test -d Chala | tee $tmp_dir/.mv.txt ; cd $tmp_dir"
 
 ## Commands solutions
-echo "$tmp_dir/Crimson_Tide" >.cd_sol
-find . -name Chala >.find_sol
+echo "$tmp_dir/Crimson_Tide" >$tmp_dir/.cd_sol
+find . -name Chala >$tmp_dir/.find_sol
 
 show_text() {
   delay=0.03
@@ -52,6 +53,19 @@ show_text() {
     sleep $delay
   done
   echo
+}
+
+run() {
+  text=$1
+  com=""
+  for ((i = 0; i < ${#text}; i++)); do
+    if [ "${text:$i:1}" == ";" ]; then
+      command "$com"
+      com=""
+    else
+      com="$com${text:$i:1}"
+    fi
+  done
 }
 
 cheat() {
@@ -126,16 +140,19 @@ while [[ part -le $((${#parts[@]} - 1)) ]]; do
   clear
   e=false
   while [[ "$e" == 'false' ]]; do
-    show_text "${parts[$part]}"
+    now_part=${parts[$part]}
+    show_text "$now_part"
     MENUPROMPT="What will you do? "
     OPTIONS=('do' 'secret' 'exit')
-    MENU "${MENUPROMPT}" $OPTIONS
+    MENU "$now_part\n\n${MENUPROMPT}" $OPTIONS
     r=${OPTIONS[$?]}
     case "$r" in
     'do')
       clear
+      echo -e "$now_part\n\n"
       read -p "Ok do it write the command you will use: " -r cho
-      command "$cho${tests[$part]}"
+      run "$cho${tests[$part]}"
+      read -p "Do you want to see the result? (y/n): " -n 1 -r
       if [[ $? -eq 0 ]]; then
         e=true
         break
