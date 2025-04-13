@@ -18,7 +18,7 @@ touch_story="Blackfin's wit and blade proved sharper than any curse.
 With the Emerald Skull in hand, Blackfin set sail again, his legend growing. The sea was his home, and adventure his only mistress. Put your flag on the island to show the world that could take the treasure"
 
 ## Commands tests
-cd_test="; pwd > .cd.txt ; cd $tmp_dir; diff .cd.txt .cd_sol"
+cd_test="; pwd > ../.cd.txt ; cd $tmp_dir; diff .cd.txt .cd_sol"
 find_test=" > .find.txt ; cd $tmp_dir; diff .find.txt .find_sol"
 rm_test="; test -f Chala | tee ./.rm.txt ; cd $tmp_dir"
 mv_test="; test -d Chala | tee ./.mv.txt ; cd $tmp_dir"
