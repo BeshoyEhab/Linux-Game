@@ -31,3 +31,6 @@ It is written in Bash and it is a fun way to learn some basic commands and advan
 - missing tests for commands 
 - the story for each command to make it more fun to user
 - how to use for each command that will add to the cheat sheet
+
+## Notion page
+https://www.notion.so/Linux-game-1bc2838a5f56805eab35fafe61350f47
