@@ -3,6 +3,7 @@
 source ./.menu.sh
 
 ## Initialize the game
+<<<<<<< HEAD
 if [ -d ".game"]; then
   rm -rf ./.game
 fi
@@ -38,6 +39,7 @@ git_story="Blackfin knew that his legend would only live on if he shared his adv
 
 # Command setup
 cd_setup="mkdir -p Crimson_Tide"
+<<<<<<< HEAD
 find_setup="touch Chala"                                   # Create the Chala file to find
 rm_setup="touch sirens"                                    # Create a sirens file to remove
 mv_setup="mkdir -p Main_Land; touch ship"                  # Create destination and ship
@@ -61,7 +63,7 @@ chmod_sol="echo "0" >$tmp_dir/.chmod_sol.txt"
 touch_sol="echo "1" >$tmp_dir/.touch_sol.txt"
 
 show_text() {
-  delay=0.03
+  delay=0.001
   text=$1
   for ((j = 0; j < ${#text}; j++)); do
     if [ "${text:$j:2}" == "\n" ]; then
@@ -79,12 +81,10 @@ show_text() {
 }
 
 run() {
-
-  text=$1
+ text=$1
   # Split commands by semicolon, trimming whitespace and ignoring empty
   IFS=';' read -ra coms <<<"$text"
   success=true
-
   for com in "${coms[@]}"; do
     com_trimmed=$(echo "$com" | xargs)  # Trim whitespace
     [[ -z "$com_trimmed" ]] && continue # Skip empty commands
