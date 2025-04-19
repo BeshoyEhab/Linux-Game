@@ -3,20 +3,24 @@
 source ./.menu.sh
 
 ## Initialize the game
-tmp_dir=$(mktemp -d -t 'game.XXX')
-export GAME_DIR=$tmp_dir
-cp -r ./game/* $tmp_dir
+if [ -d ".game"]; then
+  rm -rf ./.game
+fi
+
+mkdir .game
+tmp_dir="$(realpath .game)"
+
 cd $tmp_dir
 
 ## Commands stories
-cd_story="Captain Flint 'Blackfin Drake' was a fearsome pirate. But he was different, he is an online pirate who searches for online treasures. He was known for his cunning and ruthlessness. His ship, the Crimson_Tide, was a ghostly shadow on the high seas. Which command should he use to enter the folder named 'Crimson_Tide'"
-find_story='One stormy night, Blackfin discovered a map leading to the legendary Emerald Skull. Search for the island named "Chala". Which command should he use (search through many files with different island names)'
-rm_story="As they sailed through treacherous waters, a rival ship, the Siren's Wrath, ambushed them. Cannons roared, and the sea turned red with battle. Remove the sirens, ASAP! Save the captain!"
-mv_story='Blackfin outsmarted his foes, using the storm to his advantage. The *Crimson Tide* emerged victorious, though scarred and weary. Take the ship and put near the Main_Land'
-chmod_story="At the island, traps and riddles guarded the treasure. He kept trying to evade and save the crew but he got trapped in a temple. Give him the permissions to be able to open the gate"
+cd_story="Captain Flint 'Blackfin Drake' was a fearsome pirate. But he was different, he is an online pirate who searches for online treasures. He was known for his cunning and ruthlessness. His ship, the Crimson_Tide, was a ghostly shadow on the high seas. Which command should he use to enter the folder named 'Crimson_Tide'\n[Task]\nYour mission is to enter the folder named 'Crimson_Tide' and find the island named 'Chala'."
+find_story='One stormy night, Blackfin discovered a map leading to the legendary Emerald Skull. Search for the island named "Chala". Which command should he use\n[Task]\nYour mission is to find the island named "Chala" and get the map leading to the legendary Emerald Skull.'
+rm_story="As they sailed through treacherous waters, a rival ship, the Siren's Wrath, ambushed them. Cannons roared, and the sea turned red with battle. Remove the sirens, ASAP! Save the captain!\n[Task]\nYour mission is to remove the ship named 'sirens' and save the captain!"
+mv_story='Blackfin outsmarted his foes, using the storm to his advantage. The *Crimson Tide* emerged victorious, though scarred and weary. Take the ship and put near the Main_Land\n[Task]\nYour mission is to move the ship "ship" and put it into the Main_Land.'
+chmod_story="At the island, traps and riddles guarded the treasure. He kept trying to evade and save the crew but he got trapped in a temple. Give him the permissions to be able to open the gate\n[Task]\nYour mission is to give all permissions to the file named 'gate' to be able to open the gate."
+touch_story="Blackfin's wit and blade proved sharper than any curse. With the Emerald Skull in hand, Blackfin set sail again, his legend growing. The sea was his home, and adventure his only mistress. Put your flag on the island to show the world that could take the treasure\n[Task]\nYour mission is to put the flag on the island named 'island' to show the world that could take the treasure."
 
 ## Need to be added
-touch_story="Blackfin's wit and blade proved sharper than any curse. With the Emerald Skull in hand, Blackfin set sail again, his legend growing. The sea was his home, and adventure his only mistress. Put your flag on the island to show the world that could take the treasure"
 tar_story="After years of sailing through the seas of the internet, Blackfin had collected countless digital treasures. But he needed a way to store them all in one place. Which command should he use to archive the treasure in a digital chest to protect it from other pirates?"
 zip_story="The files were too many, and carrying them slowed down the digital ship. Blackfin needed a way to make them smaller and more efficient. Which command should he use to compress the treasure to make it lighter and easier to transport?"
 chown_story="While dividing the loot, Blackfin decided to grant some treasures to his loyal crew. But he needed to change the owner of certain digital files. Which command should he use to give the crew ownership of some of the treasures?"
@@ -32,21 +36,40 @@ pwd_story="After wandering through many digital directories, Blackfin lost track
 diff_story="Blackfin had two versions of the treasure map but wasn’t sure what was different between them. Which command should he use to find the difference between the two versions to know which one is updated?"
 git_story="Blackfin knew that his legend would only live on if he shared his adventures with the world. So, he created a digital repository where he could document and update all his journeys. Which command should he use to save the history of his adventures and share them with his crew?"
 
+# Command setup
+cd_setup="mkdir -p Crimson_Tide"
+find_setup="touch Chala"                                   # Create the Chala file to find
+rm_setup="touch sirens"                                    # Create a sirens file to remove
+mv_setup="mkdir -p Main_Land; touch ship"                  # Create destination and ship
+chmod_setup="touch $tmp_dir/gate; chmod 000 $tmp_dir/gate" # Create a gate with no permissions
+touch_setup="mkdir -p island"                              # Create an island to put flag on
+
 ## Commands tests
-cd_test="; pwd > $tmp_dir/.cd.txt ; cd $tmp_dir; diff .cd.txt .cd_sol"
-find_test=" > $tmp_dir/.find.txt ; cd $tmp_dir; diff .find.txt .find_sol"
-rm_test="; test -f Chala | tee $tmp_dir/.rm.txt ; cd $tmp_dir"
-mv_test="; test -d Chala | tee $tmp_dir/.mv.txt ; cd $tmp_dir"
+cd_test="; pwd | grep $tmp_dir/Crimson_Tide > /dev/null"
+find_test=" | tee $tmp_dir/.find.txt ; cd $tmp_dir; diff $tmp_dir/.find.txt $tmp_dir/.find_sol; cd $tmp_dir"
+rm_test="; test ! -f $tmp_dir/sirens; echo $? | tee $tmp_dir/.rm.txt ;diff $tmp_dir/.rm.txt $tmp_dir/.rm_sol.txt; cd $tmp_dir"
+mv_test="; test -f $tmp_dir/Main_Land/ship ; echo $? >> $tmp_dir/.mv.txt; test ! -f $tmp_dir/ship ; echo $? >> $tmp_dir/.mv.txt ;diff $tmp_dir/.mv.txt $tmp_dir/.mv_sol.txt; cd $tmp_dir"
+chmod_test=";test -r $tmp_dir/gate && test -w $tmp_dir/gate && test -x $tmp_dir/gate; echo $? | tee $tmp_dir/.chmod.txt ;diff $tmp_dir/.chmod.txt $tmp_dir/.chmod_sol.txt; cd $tmp_dir"
+touch_test="; ls $tmp_dir/island | wc -l > $tmp_dir/.touch.txt; diff $tmp_dir/.touch.txt $tmp_dir/.touch_sol.txt; cd $tmp_dir"
 
 ## Commands solutions
-echo "$tmp_dir/Crimson_Tide" >$tmp_dir/.cd_sol
-find . -name Chala >$tmp_dir/.find_sol
+cd_sol="echo "$tmp_dir/Crimson_Tide" >$tmp_dir/.cd_sol"
+find_sol="find . -name Chala >$tmp_dir/.find_sol"
+rm_sol="echo "0" >$tmp_dir/.rm_sol.txt"
+mv_sol="echo "0" >>$tmp_dir/.mv_sol.txt; echo "0" >> $tmp_dir/.mv_sol.txt"
+chmod_sol="echo "0" >$tmp_dir/.chmod_sol.txt"
+touch_sol="echo "1" >$tmp_dir/.touch_sol.txt"
 
 show_text() {
   delay=0.03
   text=$1
   for ((j = 0; j < ${#text}; j++)); do
-    echo -n "${text:$j:1}"
+    if [ "${text:$j:2}" == "\n" ]; then
+      echo
+      j=$((j + 1))
+    else
+      echo -n "${text:$j:1}"
+    fi
     if [ "${text:$j:1}" == "." ]; then
       sleep $(echo "$delay * 15" | bc)
     fi
@@ -56,26 +79,42 @@ show_text() {
 }
 
 run() {
+
   text=$1
   # Split commands by semicolon, trimming whitespace and ignoring empty
   IFS=';' read -ra coms <<<"$text"
+  success=true
+
   for com in "${coms[@]}"; do
     com_trimmed=$(echo "$com" | xargs)  # Trim whitespace
     [[ -z "$com_trimmed" ]] && continue # Skip empty commands
+
     if [[ "$com_trimmed" == *"diff"* ]]; then
-      eval "$com_trimmed" 2>&1
+      eval "$com_trimmed" &>/dev/null
       diff_exit_code=$?
       if [ $diff_exit_code -ne 0 ]; then
-        echo -e "\033[1;31mTest failed! Differences found.\033[0m"
-      else
-        echo -e "\033[1;32mTest passed! No differences.\033[0m"
-        # we will add git checkout here to enter the next level
+        success=false
       fi
     else
-      eval "$com_trimmed" 2>&1
+      eval "$com_trimmed" &>/dev/null
+      if [ $? -ne 0 ]; then
+        success=false
+      fi
     fi
   done
-  read -p "Press Enter to continue..."
+
+  if [ "$success" = true ]; then
+    echo -e "\033[1;32mTest passed!\033[0m"
+
+    read -p "Press Enter to continue..."
+    return 0
+  else
+    echo -e "\033[1;31mTest failed! Try again.\033[0m"
+    read -p "Press Enter to try again..."
+
+    return 1
+  fi
+
 }
 
 cheat() {
@@ -196,12 +235,16 @@ Example \`git commit -m 'Added Emerald Skull coordinates'\`"
 }
 
 parts=("$cd_story" "$find_story" "$rm_story" "$mv_story" "$chmod_story" "$touch_story")
+setups=("$cd_setup" "$find_setup" "$rm_setup" "$mv_setup" "$chmod_setup" "$touch_setup")
 tests=("$cd_test" "$find_test" "$rm_test" "$mv_test" "$chmod_test" "$touch_test")
+solutions=("$cd_sol" "$find_sol" "$rm_sol" "$mv_sol" "$chmod_sol" "$touch_sol")
 part=0
 while [[ part -le $((${#parts[@]} - 1)) ]]; do
   clear
+  cd $tmp_dir
   e=false
   while [[ "$e" == 'false' ]]; do
+    clear
     now_part=${parts[$part]}
     show_text "$now_part"
     MENUPROMPT="What will you do? "
@@ -211,8 +254,11 @@ while [[ part -le $((${#parts[@]} - 1)) ]]; do
     case "$r" in
     'do')
       clear
+      command rm -rf $tmp_dir/*
       echo -e "$now_part\n\n"
       read -p "Ok do it write the command you will use: " -r cho
+      eval "${setups[$part]}"
+      eval "${solutions[$part]}"
       run "$cho${tests[$part]}"
       if [[ $? -eq 0 ]]; then
         e=true
